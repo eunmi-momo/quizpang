@@ -1,4 +1,9 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
+const basePath = (process.env.NEXT_PUBLIC_BASE_PATH ?? "").trim() || undefined
 
-export default nextConfig;
+const nextConfig = {
+  output: "standalone",
+  ...(basePath ? { basePath, assetPrefix: basePath } : {}),
+}
+
+export default nextConfig

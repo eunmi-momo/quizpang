@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 
 import { CategoryCard } from '@/components/CategoryCard'
 import { NicknameModal } from '@/components/NicknameModal'
+import { apiUrl } from '@/lib/base-path'
 import { saveQuizPrefetch } from '@/lib/quiz-prefetch'
 import type { Category } from '@/types/quiz'
 
@@ -30,7 +31,7 @@ export default function HomePage() {
     const cat = modalCategory
     prefetchReadyRef.current = (async () => {
       try {
-        const res = await fetch(`/api/quiz/generate?category=${encodeURIComponent(cat)}`)
+        const res = await fetch(apiUrl(`/api/quiz/generate?category=${encodeURIComponent(cat)}`))
         const data = await res.json().catch(() => ({}))
         if (!res.ok) return
         const qs = data.questions

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 
+import { apiUrl } from '@/lib/base-path'
 import { ResultBoard } from '@/components/ResultBoard'
 import type { Category } from '@/types/quiz'
 
@@ -89,7 +90,7 @@ export default function ResultPage() {
 
         if (shouldPost) {
           try {
-            const postRes = await fetch('/api/score', {
+            const postRes = await fetch(apiUrl('/api/score'), {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
@@ -115,7 +116,7 @@ export default function ResultPage() {
           await waitUntilScorePostSettled(scorePostDedupeKey)
         }
 
-        const getRes = await fetch(`/api/score?category=${encodeURIComponent(category)}`)
+        const getRes = await fetch(apiUrl(`/api/score?category=${encodeURIComponent(category)}`))
         const getData = await getRes.json().catch(() => ({}))
         if (!getRes.ok) {
           throw new Error(typeof getData.error === 'string' ? getData.error : '랭킹을 불러오지 못했어요.')

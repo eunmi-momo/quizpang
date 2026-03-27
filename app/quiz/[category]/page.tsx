@@ -6,6 +6,7 @@ import { useParams, useRouter, useSearchParams } from 'next/navigation'
 
 import { ProgressBar } from '@/components/ProgressBar'
 import { QuizCard } from '@/components/QuizCard'
+import { apiUrl } from '@/lib/base-path'
 import { takeQuizPrefetch } from '@/lib/quiz-prefetch'
 import type { Category, QuizQuestion } from '@/types/quiz'
 
@@ -78,7 +79,7 @@ export default function QuizPage() {
     setLoading(true)
     setLoadError(null)
 
-    const url = `/api/quiz/generate?category=${encodeURIComponent(category)}`
+    const url = apiUrl(`/api/quiz/generate?category=${encodeURIComponent(category)}`)
 
     fetch(url)
       .then(async (res) => {
