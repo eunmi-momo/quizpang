@@ -110,14 +110,14 @@ export default function HomePage() {
           </p>
           <p className="mt-2 text-sm text-zinc-700 sm:text-base">
             {participationTotal === null ? (
-              <span className="text-zinc-400">누적 참여 수 불러오는 중…</span>
+              <span className="text-zinc-400">참여 인원 불러오는 중…</span>
             ) : (
               <>
-                누적 참여{' '}
+                지금까지{' '}
                 <span className="font-bold tabular-nums text-doodle-purple">
                   {participationTotal.toLocaleString('ko-KR')}
                 </span>
-                명
+                명 참여중
               </>
             )}
           </p>
