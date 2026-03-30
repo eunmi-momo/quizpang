@@ -2,6 +2,7 @@
 
 import { useCallback, useState } from 'react'
 
+import { copyTextToClipboard } from '@/lib/copy-to-clipboard'
 import type { Category } from '@/types/quiz'
 
 const categoryLabel: Record<Category, string> = {
@@ -34,12 +35,12 @@ export function ResultBoard({
   const isPerfect = total > 0 && score === total
 
   const handleCopyUrl = useCallback(async () => {
-    try {
-      const url = typeof window !== 'undefined' ? window.location.href : ''
-      await navigator.clipboard.writeText(url)
+    const url = typeof window !== 'undefined' ? window.location.href : ''
+    const ok = await copyTextToClipboard(url)
+    if (ok) {
       setCopyMsg('URL이 복사되었어요.')
       setTimeout(() => setCopyMsg(null), 2500)
-    } catch {
+    } else {
       setCopyMsg('복사에 실패했어요. 주소창에서 직접 복사해 주세요.')
       setTimeout(() => setCopyMsg(null), 3000)
     }
@@ -59,11 +60,12 @@ export function ResultBoard({
       if ((e as Error).name === 'AbortError') return
     }
 
-    try {
-      await navigator.clipboard.writeText(`${title}\n${text}\n${url}`)
+    const combined = `${title}\n${text}\n${url}`
+    const copied = await copyTextToClipboard(combined)
+    if (copied) {
       setCopyMsg('공유 문구와 URL을 복사했어요. 카카오톡에 붙여넣기 하세요.')
       setTimeout(() => setCopyMsg(null), 3000)
-    } catch {
+    } else {
       setCopyMsg('공유를 완료하지 못했어요. URL 복사를 이용해 주세요.')
       setTimeout(() => setCopyMsg(null), 3000)
     }
