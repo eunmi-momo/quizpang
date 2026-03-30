@@ -74,33 +74,31 @@ export function ResultBoard({
   const normalizedMe = nickname.trim()
 
   return (
-    <div className="w-full max-w-lg mx-auto px-3 sm:px-4 py-6 sm:py-8">
-      <div className="rounded-2xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 p-5 sm:p-8 shadow-xl text-center">
-        <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+    <div className="quizpang-stack mx-auto w-full max-w-lg px-3 py-6 sm:px-4 sm:py-8">
+      <div className="rounded-2xl border-4 border-black bg-white p-5 text-center shadow-[4px_4px_0_#000] sm:p-8">
+        <p className="text-sm font-bold text-zinc-600">
           {categoryLabel[category]} · {nickname}님
         </p>
         <div className="mt-3 flex items-center justify-center gap-2">
-          <span className="text-5xl sm:text-6xl font-black tabular-nums text-violet-600 dark:text-violet-400">
-            {score}
-          </span>
-          <span className="text-2xl sm:text-3xl font-bold text-zinc-400">/</span>
-          <span className="text-3xl sm:text-4xl font-bold tabular-nums text-zinc-700 dark:text-zinc-200">
-            {total}
-          </span>
-          {isPerfect ? <span className="text-4xl sm:text-5xl" aria-hidden>🎉</span> : null}
+          <span className="font-jua text-5xl tabular-nums text-doodle-purple sm:text-6xl">{score}</span>
+          <span className="text-2xl font-bold text-zinc-400 sm:text-3xl">/</span>
+          <span className="font-jua text-3xl font-bold tabular-nums text-zinc-800 sm:text-4xl">{total}</span>
+          {isPerfect ? (
+            <span className="text-4xl sm:text-5xl" aria-hidden>
+              🎉
+            </span>
+          ) : null}
         </div>
-        <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-          {isPerfect ? '만점! 멋져요!' : '수고했어요!'}
-        </p>
+        <p className="mt-2 text-sm font-bold text-zinc-700">{isPerfect ? '만점! 멋져요!' : '수고했어요!'}</p>
       </div>
 
       <div className="mt-8">
-        <h3 className="text-sm font-bold text-zinc-700 dark:text-zinc-200 mb-3">
+        <h3 className="mb-3 font-jua text-base font-bold text-zinc-900">
           오늘의 랭킹 TOP 5 · {categoryLabel[category]}
         </h3>
-        <ol className="rounded-xl border border-zinc-200 dark:border-zinc-700 divide-y divide-zinc-200 dark:divide-zinc-700 bg-zinc-50/80 dark:bg-zinc-900/50 overflow-hidden">
+        <ol className="divide-y-2 divide-black overflow-hidden rounded-xl border-4 border-black bg-white shadow-[3px_3px_0_#000]">
           {rankings.length === 0 ? (
-            <li className="px-4 py-6 text-center text-sm text-zinc-500">아직 기록이 없어요.</li>
+            <li className="px-4 py-6 text-center text-sm font-bold text-zinc-500">아직 기록이 없어요.</li>
           ) : (
             rankings.map((r, i) => {
               const isMe = r.nickname.trim() === normalizedMe
@@ -108,17 +106,15 @@ export function ResultBoard({
                 <li
                   key={`${r.nickname}-${i}`}
                   className={
-                    'flex items-center justify-between px-4 py-3 sm:py-3.5 text-sm sm:text-base ' +
-                    (isMe
-                      ? 'bg-violet-100/90 dark:bg-violet-950/50 font-bold text-violet-900 dark:text-violet-100'
-                      : 'text-zinc-800 dark:text-zinc-200')
+                    'flex items-center justify-between px-4 py-3 text-sm sm:py-3.5 sm:text-base ' +
+                    (isMe ? 'bg-doodle-purple/15 font-bold text-doodle-purple' : 'text-zinc-800')
                   }
                 >
                   <span className="flex items-center gap-3">
-                    <span className="w-6 text-zinc-500 font-semibold tabular-nums">{i + 1}</span>
+                    <span className="w-6 tabular-nums font-bold text-zinc-500">{i + 1}</span>
                     <span>{r.nickname}</span>
                   </span>
-                  <span className="tabular-nums font-semibold">{r.score}점</span>
+                  <span className="tabular-nums font-bold">{r.score}점</span>
                 </li>
               )
             })
@@ -126,42 +122,34 @@ export function ResultBoard({
         </ol>
       </div>
 
-      <div className="mt-6 flex flex-col sm:flex-row gap-2 sm:gap-3">
-        <button
-          type="button"
-          onClick={onRetry}
-          className="flex-1 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-semibold py-3 px-4 text-sm sm:text-base shadow-md transition-colors"
-        >
+      <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:gap-3">
+        <button type="button" onClick={onRetry} className="doodle-btn-primary flex-1 text-center">
           다시 풀기
         </button>
-        <button
-          type="button"
-          onClick={onOtherCategory}
-          className="flex-1 rounded-xl border-2 border-violet-500 text-violet-700 dark:text-violet-300 font-semibold py-3 px-4 text-sm sm:text-base hover:bg-violet-50 dark:hover:bg-violet-950/40 transition-colors"
-        >
+        <button type="button" onClick={onOtherCategory} className="doodle-btn-outline flex-1 text-center">
           다른 카테고리
         </button>
       </div>
 
-      <div className="mt-4 flex flex-col sm:flex-row gap-2 sm:gap-3">
+      <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:gap-3">
         <button
           type="button"
           onClick={handleKakaoShare}
-          className="flex-1 rounded-xl bg-[#FEE500] hover:bg-[#fdd835] text-[#191919] font-semibold py-3 px-4 text-sm sm:text-base border border-yellow-600/20 transition-colors"
+          className="flex-1 rounded-2xl border-4 border-black bg-[#FEE500] py-3 text-sm font-bold text-[#191919] shadow-[3px_3px_0_#000] transition-transform hover:translate-x-px hover:translate-y-px hover:shadow-[2px_2px_0_#000] sm:text-base"
         >
           카카오톡 공유
         </button>
         <button
           type="button"
           onClick={handleCopyUrl}
-          className="flex-1 rounded-xl bg-zinc-200 hover:bg-zinc-300 dark:bg-zinc-700 dark:hover:bg-zinc-600 text-zinc-900 dark:text-zinc-100 font-semibold py-3 px-4 text-sm sm:text-base transition-colors"
+          className="flex-1 rounded-2xl border-4 border-black bg-zinc-200 py-3 text-sm font-bold text-zinc-900 shadow-[3px_3px_0_#000] transition-transform hover:translate-x-px hover:translate-y-px hover:bg-zinc-300 hover:shadow-[2px_2px_0_#000] sm:text-base"
         >
           URL 복사
         </button>
       </div>
 
       {copyMsg ? (
-        <p className="mt-3 text-center text-xs sm:text-sm text-emerald-600 dark:text-emerald-400" role="status">
+        <p className="mt-3 text-center text-xs font-bold text-doodle-green sm:text-sm" role="status">
           {copyMsg}
         </p>
       ) : null}

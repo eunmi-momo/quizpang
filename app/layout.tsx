@@ -1,21 +1,24 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
+import { Gowun_Dodum, Jua } from "next/font/google";
 import "./globals.css";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
+const jua = Jua({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-jua",
+  display: "swap",
 });
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
+
+const gowun = Gowun_Dodum({
+  weight: "400",
+  subsets: ["latin"],
+  variable: "--font-gowun",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
   title: "SBS연예뉴스 퀴즈팡",
-  description: "오늘의 연예뉴스로 퀴즈를 풀어보세요!",
+  description: "매일 새로운 퀴즈가 찾아옵니다!",
 };
 
 export default function RootLayout({
@@ -24,9 +27,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="ko">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${jua.variable} ${gowun.variable} font-gowun antialiased text-zinc-900`}
       >
         {children}
       </body>

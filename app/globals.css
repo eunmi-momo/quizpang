@@ -3,25 +3,68 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* 은은한 라벤더 베이스 (격자 페이지와 동일 톤) */
+  --background: #f3f0fa;
+  --foreground: #18181b;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+
+  /** 노트·낙서풍 배경 (그리드) — 은은한 보라 톤 */
+  .quizpang-page {
+    @apply relative isolate min-h-screen overflow-x-hidden text-zinc-900;
+    background-color: var(--background);
+    background-image: linear-gradient(rgba(91, 33, 182, 0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(91, 33, 182, 0.07) 1px, transparent 1px);
+    background-size: 22px 22px;
+    background-position: -1px -1px;
+  }
+
+  .quizpang-stack {
+    @apply relative z-10;
+  }
+
+  /** 상단 바 — 두꺼운 검은 테두리 */
+  .quizpang-glass-header {
+    @apply border-b-4 border-black bg-white;
+    box-shadow: 0 3px 0 rgba(0, 0, 0, 0.08);
+  }
+
+  /** 스티커 느낌의 메인 타이틀 */
+  .doodle-title-sticker {
+    font-family: var(--font-jua), cursive;
+    text-shadow: 3px 3px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
+      2px 2px 0 rgba(0, 0, 0, 0.15);
+  }
+
+  /** 3D 레이어 버튼 (보라 + 그린 + 옐로우) */
+  .doodle-btn-primary {
+    @apply rounded-2xl border-4 border-black bg-doodle-purple px-5 py-3 text-sm font-bold text-white transition-transform sm:text-base;
+    box-shadow: 4px 4px 0 #2ecc71, 8px 8px 0 #f4d03f;
+  }
+  .doodle-btn-primary:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 #2ecc71, 4px 4px 0 #f4d03f;
+  }
+  .doodle-btn-primary:active {
+    transform: translate(4px, 4px);
+    box-shadow: 0 0 0 #2ecc71, 0 0 0 #f4d03f;
+  }
+
+  .doodle-btn-outline {
+    @apply rounded-2xl border-4 border-black bg-white px-5 py-3 text-sm font-bold text-zinc-900 transition-transform sm:text-base;
+    box-shadow: 3px 3px 0 #000;
+  }
+  .doodle-btn-outline:hover {
+    transform: translate(1px, 1px);
+    box-shadow: 2px 2px 0 #000;
   }
 }

@@ -26,13 +26,13 @@ async function waitUntilScorePostSettled(key: string) {
 
 function Spinner() {
   return (
-    <div className="flex flex-col items-center justify-center gap-4 py-24 min-h-[40vh]">
+    <div className="flex min-h-[40vh] flex-col items-center justify-center gap-4 py-24">
       <div
-        className="h-12 w-12 sm:h-14 sm:w-14 rounded-full border-4 border-violet-200 border-t-violet-600 animate-spin"
+        className="h-12 w-12 animate-spin rounded-full border-4 border-zinc-300 border-t-doodle-purple sm:h-14 sm:w-14"
         role="status"
         aria-label="로딩 중"
       />
-      <p className="text-sm text-zinc-600 dark:text-zinc-400">결과를 저장하고 랭킹을 불러오는 중이에요…</p>
+      <p className="text-sm font-bold text-zinc-700">결과를 저장하고 랭킹을 불러오는 중이에요…</p>
     </div>
   )
 }
@@ -163,9 +163,9 @@ export default function ResultPage() {
 
   if (!category || nickname.length < 1 || Number.isNaN(scoreNum)) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-zinc-50 dark:bg-zinc-950">
-        <p className="text-zinc-700 dark:text-zinc-300 text-center">결과 정보가 올바르지 않아요.</p>
-        <Link href="/" className="mt-6 rounded-xl bg-violet-600 text-white font-semibold px-6 py-3 text-sm sm:text-base">
+      <div className="quizpang-page flex flex-col items-center justify-center px-4">
+        <p className="quizpang-stack text-center font-bold text-zinc-800">결과 정보가 올바르지 않아요.</p>
+        <Link href="/" className="quizpang-stack mt-6 doodle-btn-outline">
           메인으로
         </Link>
       </div>
@@ -174,8 +174,8 @@ export default function ResultPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-zinc-50 to-violet-50/40 dark:from-zinc-950 dark:to-violet-950/30 px-4">
-        <div className="mx-auto max-w-lg">
+      <div className="quizpang-page px-4">
+        <div className="quizpang-stack mx-auto max-w-lg">
           <Spinner />
         </div>
       </div>
@@ -184,9 +184,9 @@ export default function ResultPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-zinc-50 dark:bg-zinc-950">
-        <p className="text-red-600 dark:text-red-400 text-center max-w-md">{error}</p>
-        <Link href="/" className="mt-6 rounded-xl bg-violet-600 text-white font-semibold px-6 py-3 text-sm sm:text-base">
+      <div className="quizpang-page flex flex-col items-center justify-center px-4">
+        <p className="quizpang-stack max-w-md text-center font-bold text-red-600">{error}</p>
+        <Link href="/" className="quizpang-stack mt-6 doodle-btn-outline">
           메인으로
         </Link>
       </div>
@@ -194,10 +194,10 @@ export default function ResultPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-zinc-50 to-violet-50/40 dark:from-zinc-950 dark:to-violet-950/30 pb-12">
-      <header className="border-b border-zinc-200/80 dark:border-zinc-800 bg-white/70 dark:bg-zinc-900/70 backdrop-blur-md">
+    <div className="quizpang-page pb-12">
+      <header className="quizpang-glass-header">
         <div className="mx-auto max-w-lg px-4 py-3 text-center">
-          <span className="text-sm font-semibold text-zinc-600 dark:text-zinc-400">퀴즈 결과</span>
+          <span className="font-jua text-base font-bold text-zinc-900">퀴즈 결과</span>
         </div>
       </header>
       <ResultBoard

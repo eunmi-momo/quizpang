@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 
+import { incrementParticipationAfterScore } from '@/lib/participation'
 import { createSupabaseServerClient } from '@/lib/supabase'
 import type { Category } from '@/types/quiz'
 
@@ -68,6 +69,8 @@ export async function POST(request: Request) {
     if (error) {
       throw new Error(`scores insert failed: ${error.message}`)
     }
+
+    await incrementParticipationAfterScore(supabase)
 
     return NextResponse.json({ ok: true })
   } catch (e) {

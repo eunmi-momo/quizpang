@@ -20,11 +20,11 @@ function Spinner() {
   return (
     <div className="flex flex-col items-center justify-center gap-4 py-20">
       <div
-        className="h-12 w-12 sm:h-14 sm:w-14 rounded-full border-4 border-violet-200 border-t-violet-600 animate-spin"
+        className="h-12 w-12 sm:h-14 sm:w-14 rounded-full border-4 border-zinc-300 border-t-doodle-purple animate-spin"
         role="status"
         aria-label="로딩 중"
       />
-      <p className="text-sm text-zinc-600 dark:text-zinc-400">문제를 불러오는 중이에요…</p>
+      <p className="text-sm font-bold text-zinc-700">문제를 불러오는 중이에요…</p>
     </div>
   )
 }
@@ -145,12 +145,9 @@ export default function QuizPage() {
 
   if (!category) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-zinc-50 dark:bg-zinc-950">
-        <p className="text-zinc-700 dark:text-zinc-300 text-center">잘못된 카테고리예요.</p>
-        <Link
-          href="/"
-          className="mt-6 rounded-xl bg-violet-600 text-white font-semibold px-6 py-3 text-sm sm:text-base"
-        >
+      <div className="quizpang-page flex flex-col items-center justify-center px-4">
+        <p className="quizpang-stack text-center font-bold text-zinc-800">잘못된 카테고리예요.</p>
+        <Link href="/" className="quizpang-stack mt-6 doodle-btn-outline">
           메인으로
         </Link>
       </div>
@@ -159,12 +156,9 @@ export default function QuizPage() {
 
   if (!validNickname) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-zinc-50 dark:bg-zinc-950">
-        <p className="text-zinc-700 dark:text-zinc-300 text-center">닉네임이 필요해요. 메인에서 다시 시작해 주세요.</p>
-        <Link
-          href="/"
-          className="mt-6 rounded-xl bg-violet-600 text-white font-semibold px-6 py-3 text-sm sm:text-base"
-        >
+      <div className="quizpang-page flex flex-col items-center justify-center px-4">
+        <p className="quizpang-stack text-center font-bold text-zinc-800">닉네임이 필요해요. 메인에서 다시 시작해 주세요.</p>
+        <Link href="/" className="quizpang-stack mt-6 doodle-btn-outline">
           메인으로
         </Link>
       </div>
@@ -173,8 +167,8 @@ export default function QuizPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-zinc-50 to-violet-50/40 dark:from-zinc-950 dark:to-violet-950/30 px-4">
-        <div className="mx-auto max-w-xl pt-12">
+      <div className="quizpang-page px-4">
+        <div className="quizpang-stack mx-auto max-w-xl pt-12">
           <Spinner />
         </div>
       </div>
@@ -183,12 +177,11 @@ export default function QuizPage() {
 
   if (loadError || !questions || questions.length === 0) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-zinc-50 dark:bg-zinc-950">
-        <p className="text-red-600 dark:text-red-400 text-center max-w-md">{loadError ?? '문제를 불러올 수 없어요.'}</p>
-        <Link
-          href="/"
-          className="mt-6 rounded-xl bg-violet-600 text-white font-semibold px-6 py-3 text-sm sm:text-base"
-        >
+      <div className="quizpang-page flex flex-col items-center justify-center px-4">
+        <p className="quizpang-stack max-w-md text-center font-bold text-red-600">
+          {loadError ?? '문제를 불러올 수 없어요.'}
+        </p>
+        <Link href="/" className="quizpang-stack mt-6 doodle-btn-outline">
           메인으로 돌아가기
         </Link>
       </div>
@@ -198,17 +191,17 @@ export default function QuizPage() {
   const total = questions.length
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-zinc-50 to-violet-50/40 dark:from-zinc-950 dark:to-violet-950/30 pb-12">
-      <header className="border-b border-zinc-200/80 dark:border-zinc-800 bg-white/70 dark:bg-zinc-900/70 backdrop-blur-md">
-        <div className="mx-auto max-w-xl px-4 py-3 sm:py-4 flex items-center justify-between gap-2">
-          <Link href="/" className="text-sm font-semibold text-violet-600 dark:text-violet-400 hover:underline">
+    <div className="quizpang-page pb-12">
+      <header className="quizpang-glass-header">
+        <div className="mx-auto flex max-w-xl items-center justify-between gap-2 px-4 py-3 sm:py-4">
+          <Link href="/" className="text-sm font-bold text-zinc-900 underline decoration-2 underline-offset-2 hover:text-doodle-purple">
             ← 홈
           </Link>
-          <span className="text-xs sm:text-sm text-zinc-500 truncate">{nickname}님</span>
+          <span className="truncate text-xs font-bold text-zinc-700 sm:text-sm">{nickname}님</span>
         </div>
       </header>
 
-      <div className="mx-auto max-w-xl px-4 pt-6 sm:pt-8">
+      <div className="quizpang-stack mx-auto max-w-xl px-4 pt-6 sm:pt-8">
         <ProgressBar current={currentIndex + 1} total={total} />
         <div className="mt-8">
           {currentQuestion ? (

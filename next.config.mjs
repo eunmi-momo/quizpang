@@ -39,6 +39,18 @@ const basePath =
 const nextConfig = {
   output: "standalone",
   ...(basePath ? { basePath, assetPrefix: basePath } : {}),
+  /** basePath 사용 시 localhost:3000/ → /quizpang/ (middleware는 basePath 기준 경로만 매칭되어 여기서 처리) */
+  async redirects() {
+    if (!basePath) return []
+    return [
+      {
+        source: "/",
+        destination: `${basePath}/`,
+        permanent: false,
+        basePath: false,
+      },
+    ]
+  },
 }
 
 export default nextConfig

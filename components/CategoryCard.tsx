@@ -2,30 +2,11 @@
 
 import type { Category } from '@/types/quiz'
 
-const categoryStyles: Record<
-  Category,
-  { gradient: string; ring: string; shadow: string }
-> = {
-  broadcast: {
-    gradient: 'from-violet-600 to-purple-700',
-    ring: 'ring-violet-400/50',
-    shadow: 'shadow-violet-500/25',
-  },
-  movie: {
-    gradient: 'from-blue-600 to-indigo-700',
-    ring: 'ring-blue-400/50',
-    shadow: 'shadow-blue-500/25',
-  },
-  music: {
-    gradient: 'from-pink-500 to-rose-600',
-    ring: 'ring-pink-400/50',
-    shadow: 'shadow-pink-500/25',
-  },
-  star: {
-    gradient: 'from-amber-400 to-yellow-500',
-    ring: 'ring-amber-300/60',
-    shadow: 'shadow-amber-500/30',
-  },
+const categoryStyles: Record<Category, { bar: string; emojiBg: string }> = {
+  broadcast: { bar: 'bg-doodle-purple', emojiBg: 'bg-doodle-purple/15' },
+  movie: { bar: 'bg-doodle-sky', emojiBg: 'bg-doodle-sky/20' },
+  music: { bar: 'bg-doodle-pink', emojiBg: 'bg-doodle-pink/15' },
+  star: { bar: 'bg-doodle-yellow', emojiBg: 'bg-doodle-yellow/25' },
 }
 
 export interface CategoryCardProps {
@@ -43,22 +24,24 @@ export function CategoryCard({ category, label, emoji, onClick }: CategoryCardPr
       type="button"
       onClick={onClick}
       className={[
-        'group relative w-full max-w-sm mx-auto rounded-2xl p-5 sm:p-6 text-left',
-        'bg-gradient-to-br text-white',
-        s.gradient,
-        'shadow-lg transition-all duration-300 ease-out',
-        'hover:scale-[1.03] active:scale-[0.98]',
-        'focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-zinc-950',
-        s.ring,
-        s.shadow,
-        'hover:shadow-xl',
+        'group relative flex aspect-square w-full min-w-0 flex-col overflow-hidden rounded-lg border-[3px] border-black bg-white text-zinc-900',
+        'shadow-[2px_2px_0_#000]',
+        'transition-transform duration-200 hover:-translate-y-px hover:shadow-[3px_3px_0_#000] active:translate-y-0',
+        'focus:outline-none focus-visible:ring-2 focus-visible:ring-doodle-purple focus-visible:ring-offset-2',
       ].join(' ')}
     >
-      <span className="text-4xl sm:text-5xl block mb-3 drop-shadow-sm" aria-hidden>
-        {emoji}
+      <span className={`h-1.5 w-full shrink-0 ${s.bar}`} aria-hidden />
+      <span className="flex min-h-0 flex-1 flex-col items-center justify-center gap-0.5 px-0.5 pb-1.5 pt-0.5 sm:gap-1 sm:px-1 sm:pb-2 sm:pt-1">
+        <span
+          className={`flex h-[3.25rem] w-[3.25rem] shrink-0 items-center justify-center rounded-md border-2 border-black text-[1.85rem] leading-none sm:h-16 sm:w-16 sm:text-[2.35rem] ${s.emojiBg}`}
+          aria-hidden
+        >
+          {emoji}
+        </span>
+        <span className="line-clamp-2 text-center font-jua text-xl font-bold leading-tight tracking-tight text-zinc-900 sm:text-2xl">
+          {label}
+        </span>
       </span>
-      <span className="text-lg sm:text-xl font-bold tracking-tight block">{label}</span>
-      <span className="mt-1 text-sm text-white/85 font-medium">퀴즈 풀러 가기 →</span>
     </button>
   )
 }

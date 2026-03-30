@@ -18,14 +18,14 @@ export function ProgressBar({ current, total }: ProgressBarProps) {
   }, [pct])
 
   return (
-    <div className="w-full max-w-xl mx-auto px-1">
-      <div className="text-sm sm:text-base font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+    <div className="mx-auto w-full max-w-xl px-1">
+      <div className="mb-2 text-sm font-bold text-zinc-800 sm:text-base">
         <span className="tabular-nums">
           {current} / {total}
         </span>
       </div>
       <div
-        className="h-3 sm:h-3.5 w-full rounded-full bg-zinc-200 dark:bg-zinc-700 overflow-hidden shadow-inner"
+        className="h-3.5 w-full overflow-hidden rounded-full border-2 border-black bg-white sm:h-4"
         role="progressbar"
         aria-valuenow={current}
         aria-valuemin={0}
@@ -33,7 +33,7 @@ export function ProgressBar({ current, total }: ProgressBarProps) {
         aria-label={`진행 ${current} 중 ${total}`}
       >
         <div
-          className="h-full rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500 transition-[width] duration-500 ease-out"
+          className="h-full rounded-full bg-gradient-to-r from-doodle-green via-doodle-sky to-doodle-purple transition-[width] duration-500 ease-out"
           style={{ width: `${widthPct}%` }}
         />
       </div>

@@ -61,25 +61,23 @@ export function NicknameModal({ category, onConfirm, onClose, isPreparing = fals
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-black/45 p-4 backdrop-blur-sm sm:items-center"
       onClick={isPreparing ? undefined : handleBackdrop}
       role="presentation"
     >
       <div
-        className="w-full max-w-md rounded-2xl bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 shadow-2xl border border-zinc-200/80 dark:border-zinc-700 p-5 sm:p-6"
+        className="w-full max-w-md rounded-2xl border-4 border-black bg-white p-5 text-zinc-900 shadow-[6px_6px_0_#000] sm:p-6"
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 id={titleId} className="text-lg sm:text-xl font-bold">
+        <h2 id={titleId} className="font-jua text-xl font-bold sm:text-2xl">
           {categoryLabel[category]} 퀴즈
         </h2>
-        <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-          랭킹에 표시될 닉네임을 입력해 주세요. (1~10자)
-        </p>
+        <p className="mt-1 text-sm font-bold text-zinc-600">랭킹에 표시될 닉네임을 입력해 주세요. (1~10자)</p>
         {isPreparing ? (
-          <p className="mt-2 text-xs text-violet-600 dark:text-violet-400">문제를 준비하고 있어요…</p>
+          <p className="mt-2 text-xs font-bold text-doodle-purple">문제를 준비하고 있어요…</p>
         ) : null}
 
         <label htmlFor="nickname-input" className="sr-only">
@@ -98,24 +96,24 @@ export function NicknameModal({ category, onConfirm, onClose, isPreparing = fals
           onKeyDown={(e) => {
             if (e.key === 'Enter') handleConfirm()
           }}
-          className="mt-4 w-full rounded-xl border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 px-4 py-3 text-base outline-none focus:ring-2 focus:ring-violet-500 disabled:opacity-60"
+          className="mt-4 w-full rounded-xl border-2 border-black bg-doodle-cream/50 px-4 py-3 text-base outline-none focus:ring-2 focus:ring-doodle-purple focus:ring-offset-2 disabled:opacity-60"
           placeholder="닉네임"
           autoComplete="nickname"
           disabled={isPreparing}
         />
 
         {error ? (
-          <p className="mt-2 text-sm text-red-600 dark:text-red-400" role="alert">
+          <p className="mt-2 text-sm font-bold text-red-600" role="alert">
             {error}
           </p>
         ) : null}
 
-        <div className="mt-6 flex flex-col-reverse sm:flex-row gap-2 sm:justify-end">
+        <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           <button
             type="button"
             onClick={onClose}
             disabled={isPreparing}
-            className="rounded-xl px-4 py-3 text-sm font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors disabled:opacity-50"
+            className="rounded-2xl border-2 border-black bg-white px-4 py-3 text-sm font-bold text-zinc-800 shadow-[2px_2px_0_#000] transition-transform hover:translate-x-px hover:translate-y-px disabled:opacity-50"
           >
             취소
           </button>
@@ -123,7 +121,7 @@ export function NicknameModal({ category, onConfirm, onClose, isPreparing = fals
             type="button"
             onClick={() => void handleConfirm()}
             disabled={isPreparing}
-            className="rounded-xl bg-violet-600 hover:bg-violet-700 text-white px-4 py-3 text-sm font-semibold shadow-md transition-colors disabled:opacity-70 disabled:cursor-wait"
+            className="doodle-btn-primary px-6 py-3 text-sm disabled:cursor-wait disabled:opacity-70"
           >
             {isPreparing ? '준비 중…' : '확인'}
           </button>
