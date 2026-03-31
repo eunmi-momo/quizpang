@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 
-import { parseCountField } from '@/lib/participation'
+import { getParticipationCountFromDb } from '@/lib/participation'
 import { createSupabaseServerClient } from '@/lib/supabase'
 
 export const dynamic = 'force-dynamic'
@@ -13,25 +13,7 @@ const DEFAULT_TOTAL = 1000
 export async function GET() {
   try {
     const supabase = createSupabaseServerClient()
-    const { data, error } = await supabase
-      .from('participation_counter')
-      .select('count')
-      .eq('id', 1)
-      .maybeSingle()
-
-    if (error) {
-      console.warn('[GET /api/stats/participation]', error.message)
-      return NextResponse.json(
-        { total: DEFAULT_TOTAL },
-        {
-          headers: {
-            'Cache-Control': 'no-store, no-cache, must-revalidate',
-          },
-        },
-      )
-    }
-
-    const total = parseCountField(data?.count)
+    const total = await getParticipationCountFromDb(supabase)
 
     return NextResponse.json(
       { total },

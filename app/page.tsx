@@ -45,11 +45,25 @@ export default function HomePage() {
 
   const loadParticipation = useCallback(async () => {
     try {
-      const res = await fetch(apiUrl('/api/stats/participation'), { cache: 'no-store' })
+      if (typeof window !== 'undefined') {
+        const sync = sessionStorage.getItem('quizpang_latest_participation')
+        if (sync != null) {
+          const synced = Number.parseInt(sync, 10)
+          if (Number.isFinite(synced)) {
+            setParticipationTotal(synced)
+          }
+        }
+      }
+      const base = apiUrl('/api/stats/participation')
+      const sep = base.includes('?') ? '&' : '?'
+      const res = await fetch(`${base}${sep}_=${Date.now()}`, { cache: 'no-store' })
       const data = (await res.json().catch(() => ({}))) as { total?: number }
       const n = data.total
       if (typeof n === 'number' && Number.isFinite(n)) {
         setParticipationTotal(n)
+        if (typeof window !== 'undefined') {
+          sessionStorage.removeItem('quizpang_latest_participation')
+        }
       } else {
         setParticipationTotal(1000)
       }

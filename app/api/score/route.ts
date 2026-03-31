@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 
-import { incrementParticipationFallback } from '@/lib/participation'
+import { getParticipationCountFromDb, incrementParticipationFallback } from '@/lib/participation'
 import { createSupabaseServerClient } from '@/lib/supabase'
 import type { Category } from '@/types/quiz'
 
@@ -95,8 +95,9 @@ export async function POST(request: Request) {
       console.log('[POST /api/score] increment_participation RPC 성공', { count: rpcData })
     }
 
-    console.log('[POST /api/score] 처리 완료 → 200')
-    return NextResponse.json({ ok: true })
+    const participationCount = await getParticipationCountFromDb(supabase)
+    console.log('[POST /api/score] 처리 완료 → 200', { participationCount })
+    return NextResponse.json({ ok: true, participationCount })
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'Unknown error'
     console.error('[POST /api/score] 예외:', e)

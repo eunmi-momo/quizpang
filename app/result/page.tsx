@@ -102,9 +102,20 @@ export default function ResultPage() {
                 score: scoreNum,
               }),
             })
-            const postData = await postRes.json().catch(() => ({}))
+            const postData = (await postRes.json().catch(() => ({}))) as {
+              error?: string
+              participationCount?: unknown
+            }
             if (!postRes.ok) {
               throw new Error(typeof postData.error === 'string' ? postData.error : '점수 저장에 실패했어요.')
+            }
+            const pc = postData.participationCount
+            if (
+              typeof window !== 'undefined' &&
+              typeof pc === 'number' &&
+              Number.isFinite(pc)
+            ) {
+              sessionStorage.setItem('quizpang_latest_participation', String(Math.round(pc)))
             }
             if (typeof window !== 'undefined' && scorePostDedupeKey) {
               sessionStorage.setItem(scorePostDedupeKey, '1')
