@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 
-import { getParticipationCountFromDb, incrementParticipationFallback } from '@/lib/participation'
+import { getParticipationCountFromDb } from '@/lib/participation'
 import { createSupabaseServerClient } from '@/lib/supabase'
 import type { Category } from '@/types/quiz'
 
@@ -78,22 +78,7 @@ export async function POST(request: Request) {
       console.error('[POST /api/score] scores insert 실패:', error.message)
       throw new Error(`scores insert failed: ${error.message}`)
     }
-    console.log('[POST /api/score] scores insert 성공')
-
-    const { data: rpcData, error: rpcError } = await supabase.rpc('increment_participation')
-    if (rpcError) {
-      console.error('increment_participation 실패:', rpcError)
-      console.log('[POST /api/score] RPC 오류 → 폴백(incrementParticipationFallback) 시도')
-      await incrementParticipationFallback(supabase)
-    } else if (rpcData == null) {
-      /** DB에 id=1 행이 없으면 UPDATE 0행 → PL/pgSQL이 NULL 반환. 에러는 없음 */
-      console.warn(
-        '[POST /api/score] increment_participation이 null 반환(0행 UPDATE 가능) → 폴백 시도',
-      )
-      await incrementParticipationFallback(supabase)
-    } else {
-      console.log('[POST /api/score] increment_participation RPC 성공', { count: rpcData })
-    }
+    console.log('[POST /api/score] scores insert 성공 (누적 참여 +1은 DB 트리거 trg_scores_increment_participation 권장)')
 
     const participationCount = await getParticipationCountFromDb(supabase)
     console.log('[POST /api/score] 처리 완료 → 200', { participationCount })

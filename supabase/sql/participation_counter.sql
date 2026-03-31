@@ -1,5 +1,9 @@
 -- Supabase → SQL Editor → New query → 아래 CREATE부터 끝까지만 복사해 실행 (파일 경로/이름은 붙이지 마세요)
 -- 누적 참여 수: 기본 1000, 퀴즈 완료(점수 저장) 시마다 +1
+--
+-- ✅ 앱은 이제 scores INSERT 시 DB 트리거로 +1 하는 방식을 권장합니다.
+--    → participation_trigger_on_scores.sql 을 먼저 적용하세요 (배포 순서는 그 파일 주석 참고).
+-- 아래 increment_participation() RPC는 레거시/수동 호출용으로 남겨 둡니다.
 
 CREATE TABLE IF NOT EXISTS public.participation_counter (
   id smallint PRIMARY KEY,
