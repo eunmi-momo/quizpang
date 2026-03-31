@@ -60,14 +60,15 @@ export function QuizCard({ question, onAnswer }: QuizCardProps) {
       </h2>
 
       {hintUrl ? (
-        <div className="mt-2">
+        <div className="mt-2.5 flex justify-end">
           <button
             type="button"
             disabled={showResult}
             onClick={handleHintClick}
-            className="text-xs font-bold text-doodle-purple underline-offset-2 hover:underline disabled:cursor-not-allowed disabled:opacity-40 disabled:no-underline disabled:hover:text-doodle-purple"
+            className="inline-flex items-center gap-1.5 rounded-lg border-2 border-doodle-purple bg-doodle-purple/10 px-3 py-2 text-sm font-bold text-doodle-purple shadow-[1px_1px_0_#000] transition-colors hover:bg-doodle-purple/20 disabled:cursor-not-allowed disabled:border-zinc-300 disabled:bg-zinc-100 disabled:text-zinc-400 disabled:shadow-none sm:text-base"
           >
-            🔍 힌트 보기
+            <span aria-hidden>🔍</span>
+            힌트 보기
           </button>
         </div>
       ) : null}

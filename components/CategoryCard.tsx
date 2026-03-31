@@ -34,14 +34,14 @@ export function CategoryCard({ category, label, emoji, onClick, onPrefetch }: Ca
       ].join(' ')}
     >
       <span className={`h-1.5 w-full shrink-0 ${s.bar}`} aria-hidden />
-      <span className="flex min-h-0 flex-1 flex-col items-center justify-center gap-0.5 px-0.5 pb-1.5 pt-0.5 sm:gap-1 sm:px-1 sm:pb-2 sm:pt-1">
+      <span className="flex min-h-0 flex-1 flex-col items-center justify-center gap-2.5 px-0.5 pb-1.5 pt-0.5 sm:gap-3 sm:px-1 sm:pb-2 sm:pt-1">
         <span
           className={`flex h-[3.25rem] w-[3.25rem] shrink-0 items-center justify-center rounded-md border-2 border-black text-[1.85rem] leading-none sm:h-16 sm:w-16 sm:text-[2.35rem] ${s.emojiBg}`}
           aria-hidden
         >
           {emoji}
         </span>
-        <span className="line-clamp-2 text-center font-jua text-xl font-bold leading-tight tracking-tight text-zinc-900 sm:text-2xl">
+        <span className="line-clamp-2 text-center font-jua text-3xl font-bold leading-tight tracking-tight text-zinc-900 sm:text-4xl">
           {label}
         </span>
       </span>

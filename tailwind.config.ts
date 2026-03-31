@@ -29,6 +29,25 @@ const config: Config = {
           "4px 4px 0 #2ecc71, 8px 8px 0 #f4d03f",
         "doodle-sm": "2px 2px 0 #2ecc71, 4px 4px 0 #f4d03f",
       },
+      keyframes: {
+        "participation-float": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-4px)" },
+        },
+        "participation-pulse": {
+          "0%, 100%": { transform: "scale(1)", opacity: "1" },
+          "50%": { transform: "scale(1.06)", opacity: "0.95" },
+        },
+        "tagline-char-in": {
+          from: { opacity: "0", transform: "translateY(0.35em)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
+      },
+      animation: {
+        "participation-float": "participation-float 2.4s ease-in-out infinite",
+        "participation-pulse": "participation-pulse 2s ease-in-out infinite",
+        "tagline-char-in": "tagline-char-in 0.45s ease-out forwards",
+      },
     },
   },
   plugins: [],

@@ -67,4 +67,38 @@ body {
     transform: translate(1px, 1px);
     box-shadow: 2px 2px 0 #000;
   }
+
+  /** 태그라인 '팡' 글자 근처 폭죽(파티클) */
+  @keyframes tagline-firework-pop {
+    0% {
+      opacity: 0;
+      transform: translate(-50%, -50%) rotate(var(--angle, 0deg)) translateY(0) scale(0.25);
+    }
+    28% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      transform: translate(-50%, -50%) rotate(var(--angle, 0deg)) translateY(-20px) scale(1);
+    }
+  }
+
+  .tagline-firework-particle {
+    @apply absolute left-1/2 top-1/2 h-1 w-2.5 rounded-full;
+    /** delay 구간에도 0% 키프레임(투명) 적용 — 파티클이 먼저 보이는 줄/점 제거 */
+    opacity: 0;
+    animation: tagline-firework-pop 0.7s ease-out both;
+    animation-delay: var(--delay, 0ms);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-participation-float,
+    .animate-participation-pulse {
+      animation: none !important;
+    }
+    .tagline-firework-particle {
+      animation: none !important;
+      opacity: 0 !important;
+    }
+  }
 }

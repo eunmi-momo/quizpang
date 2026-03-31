@@ -6,6 +6,7 @@ import { useParams, useRouter, useSearchParams } from 'next/navigation'
 
 import { ProgressBar } from '@/components/ProgressBar'
 import { QuizCard } from '@/components/QuizCard'
+import { SiteHeaderBar } from '@/components/SiteHeaderBar'
 import { apiUrl } from '@/lib/base-path'
 import { takeQuizPrefetch } from '@/lib/quiz-prefetch'
 import type { Category, QuizQuestion } from '@/types/quiz'
@@ -192,14 +193,7 @@ export default function QuizPage() {
 
   return (
     <div className="quizpang-page pb-12">
-      <header className="quizpang-glass-header">
-        <div className="mx-auto flex max-w-xl items-center justify-between gap-2 px-4 py-3 sm:py-4">
-          <Link href="/" className="text-sm font-bold text-zinc-900 underline decoration-2 underline-offset-2 hover:text-doodle-purple">
-            ← 홈
-          </Link>
-          <span className="truncate text-xs font-bold text-zinc-700 sm:text-sm">{nickname}님</span>
-        </div>
-      </header>
+      <SiteHeaderBar nickname={nickname} />
 
       <div className="quizpang-stack mx-auto max-w-xl px-4 pt-6 sm:pt-8">
         <ProgressBar current={currentIndex + 1} total={total} />

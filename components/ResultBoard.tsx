@@ -79,21 +79,21 @@ export function ResultBoard({
   return (
     <div className="quizpang-stack mx-auto w-full max-w-lg px-3 py-6 sm:px-4 sm:py-8">
       <div className="rounded-2xl border-4 border-black bg-white p-5 text-center shadow-[4px_4px_0_#000] sm:p-8">
-        <p className="text-sm font-bold text-zinc-600">
+        <p className="text-base font-bold text-zinc-600">
           {categoryLabel[category]} · {nickname}님
         </p>
         <div className="mt-3 flex items-center justify-center gap-2">
-          <span className="font-jua text-5xl tabular-nums text-doodle-purple sm:text-6xl">{score}</span>
-          <span className="text-2xl font-bold text-zinc-400 sm:text-3xl">/</span>
-          <span className="font-jua text-3xl font-bold tabular-nums text-zinc-800 sm:text-4xl">{total}</span>
+          <span className="font-jua text-6xl tabular-nums text-doodle-purple sm:text-7xl">{score}</span>
+          <span className="text-3xl font-bold text-zinc-400 sm:text-4xl">/</span>
+          <span className="font-jua text-4xl font-bold tabular-nums text-zinc-800 sm:text-5xl">{total}</span>
           {isPerfect ? (
-            <span className="text-4xl sm:text-5xl" aria-hidden>
+            <span className="text-5xl sm:text-6xl" aria-hidden>
               🎉
             </span>
           ) : null}
         </div>
-        <p className="mt-2 text-sm font-bold text-zinc-700">{isPerfect ? '만점! 멋져요!' : '수고했어요!'}</p>
-        <p className="mt-3 text-sm font-bold text-zinc-600">
+        <p className="mt-2 text-base font-bold text-zinc-700">{isPerfect ? '만점! 멋져요!' : '수고했어요!'}</p>
+        <p className="mt-3 text-base font-bold text-zinc-600">
           지금까지{' '}
           <span className="tabular-nums font-bold text-doodle-purple">
             {participationCount.toLocaleString('ko-KR')}
@@ -103,12 +103,12 @@ export function ResultBoard({
       </div>
 
       <div className="mt-8">
-        <h3 className="mb-3 font-jua text-base font-bold text-zinc-900">
+        <h3 className="mb-3 font-jua text-xl font-bold text-zinc-900">
           오늘의 랭킹 TOP 5 · {categoryLabel[category]}
         </h3>
         <ol className="divide-y-2 divide-black overflow-hidden rounded-xl border-4 border-black bg-white shadow-[3px_3px_0_#000]">
           {rankings.length === 0 ? (
-            <li className="px-4 py-6 text-center text-sm font-bold text-zinc-500">아직 기록이 없어요.</li>
+            <li className="px-4 py-6 text-center text-base font-bold text-zinc-500">아직 기록이 없어요.</li>
           ) : (
             rankings.map((r, i) => {
               const isMe = r.nickname.trim() === normalizedMe
@@ -116,7 +116,7 @@ export function ResultBoard({
                 <li
                   key={`${r.nickname}-${i}`}
                   className={
-                    'flex items-center justify-between px-4 py-3 text-sm sm:py-3.5 sm:text-base ' +
+                    'flex items-center justify-between px-4 py-3 text-base sm:py-3.5 sm:text-lg ' +
                     (isMe ? 'bg-doodle-purple/15 font-bold text-doodle-purple' : 'text-zinc-800')
                   }
                 >
@@ -133,10 +133,18 @@ export function ResultBoard({
       </div>
 
       <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:gap-3">
-        <button type="button" onClick={onRetry} className="doodle-btn-primary flex-1 text-center">
+        <button
+          type="button"
+          onClick={onRetry}
+          className="doodle-btn-primary flex-1 text-center text-base sm:text-lg"
+        >
           다시 풀기
         </button>
-        <button type="button" onClick={onOtherCategory} className="doodle-btn-outline flex-1 text-center">
+        <button
+          type="button"
+          onClick={onOtherCategory}
+          className="doodle-btn-outline flex-1 text-center text-base sm:text-lg"
+        >
           다른 카테고리
         </button>
       </div>
@@ -145,21 +153,21 @@ export function ResultBoard({
         <button
           type="button"
           onClick={handleKakaoShare}
-          className="flex-1 rounded-2xl border-4 border-black bg-[#FEE500] py-3 text-sm font-bold text-[#191919] shadow-[3px_3px_0_#000] transition-transform hover:translate-x-px hover:translate-y-px hover:shadow-[2px_2px_0_#000] sm:text-base"
+          className="flex-1 rounded-2xl border-4 border-black bg-[#FEE500] py-3 text-base font-bold text-[#191919] shadow-[3px_3px_0_#000] transition-transform hover:translate-x-px hover:translate-y-px hover:shadow-[2px_2px_0_#000] sm:text-lg"
         >
           카카오톡 공유
         </button>
         <button
           type="button"
           onClick={handleCopyUrl}
-          className="flex-1 rounded-2xl border-4 border-black bg-zinc-200 py-3 text-sm font-bold text-zinc-900 shadow-[3px_3px_0_#000] transition-transform hover:translate-x-px hover:translate-y-px hover:bg-zinc-300 hover:shadow-[2px_2px_0_#000] sm:text-base"
+          className="flex-1 rounded-2xl border-4 border-black bg-zinc-200 py-3 text-base font-bold text-zinc-900 shadow-[3px_3px_0_#000] transition-transform hover:translate-x-px hover:translate-y-px hover:bg-zinc-300 hover:shadow-[2px_2px_0_#000] sm:text-lg"
         >
           URL 복사
         </button>
       </div>
 
       {copyMsg ? (
-        <p className="mt-3 text-center text-xs font-bold text-doodle-green sm:text-sm" role="status">
+        <p className="mt-3 text-center text-sm font-bold text-doodle-green sm:text-base" role="status">
           {copyMsg}
         </p>
       ) : null}

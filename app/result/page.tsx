@@ -4,8 +4,9 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 
-import { apiUrl } from '@/lib/base-path'
 import { ResultBoard } from '@/components/ResultBoard'
+import { SiteHeaderBar } from '@/components/SiteHeaderBar'
+import { apiUrl } from '@/lib/base-path'
 import type { Category } from '@/types/quiz'
 
 const CATEGORIES: Category[] = ['broadcast', 'movie', 'music', 'star']
@@ -34,7 +35,7 @@ function Spinner() {
         role="status"
         aria-label="로딩 중"
       />
-      <p className="text-sm font-bold text-zinc-700">결과를 저장하고 랭킹을 불러오는 중이에요…</p>
+      <p className="text-base font-bold text-zinc-700">결과를 저장하고 랭킹을 불러오는 중이에요…</p>
     </div>
   )
 }
@@ -208,8 +209,9 @@ export default function ResultPage() {
 
   if (loading) {
     return (
-      <div className="quizpang-page px-4">
-        <div className="quizpang-stack mx-auto max-w-lg">
+      <div className="quizpang-page pb-12">
+        <SiteHeaderBar nickname={nickname} />
+        <div className="quizpang-stack mx-auto max-w-lg px-4">
           <Spinner />
         </div>
       </div>
@@ -218,22 +220,21 @@ export default function ResultPage() {
 
   if (error) {
     return (
-      <div className="quizpang-page flex flex-col items-center justify-center px-4">
-        <p className="quizpang-stack max-w-md text-center font-bold text-red-600">{error}</p>
-        <Link href="/" className="quizpang-stack mt-6 doodle-btn-outline">
-          메인으로
-        </Link>
+      <div className="quizpang-page pb-12">
+        <SiteHeaderBar nickname={nickname} />
+        <div className="quizpang-stack flex flex-col items-center justify-center px-4">
+          <p className="max-w-md text-center font-bold text-red-600">{error}</p>
+          <Link href="/" className="mt-6 doodle-btn-outline">
+            메인으로
+          </Link>
+        </div>
       </div>
     )
   }
 
   return (
     <div className="quizpang-page pb-12">
-      <header className="quizpang-glass-header">
-        <div className="mx-auto max-w-lg px-4 py-3 text-center">
-          <span className="font-jua text-base font-bold text-zinc-900">퀴즈 결과</span>
-        </div>
-      </header>
+      <SiteHeaderBar nickname={nickname} />
       <ResultBoard
         score={scoreNum}
         total={totalQuestions}

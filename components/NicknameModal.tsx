@@ -73,7 +73,7 @@ export function NicknameModal({ category, onConfirm, onClose, isPreparing = fals
         onClick={(e) => e.stopPropagation()}
       >
         <h2 id={titleId} className="font-jua text-xl font-bold sm:text-2xl">
-          {categoryLabel[category]} 퀴즈
+          {categoryLabel[category]} 퀴즈 도전!
         </h2>
         <p className="mt-1 text-sm font-bold text-zinc-600">랭킹에 표시될 닉네임을 입력해 주세요. (1~10자)</p>
         {isPreparing ? (
