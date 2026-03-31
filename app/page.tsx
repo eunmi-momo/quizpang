@@ -45,29 +45,53 @@ export default function HomePage() {
 
   const loadParticipation = useCallback(async () => {
     try {
+      let optimistic: number | null = null
       if (typeof window !== 'undefined') {
         const sync = sessionStorage.getItem('quizpang_latest_participation')
         if (sync != null) {
-          const synced = Number.parseInt(sync, 10)
-          if (Number.isFinite(synced)) {
-            setParticipationTotal(synced)
+          const v = Number.parseInt(sync, 10)
+          if (Number.isFinite(v)) {
+            optimistic = v
+            setParticipationTotal(v)
           }
         }
       }
+
       const base = apiUrl('/api/stats/participation')
       const sep = base.includes('?') ? '&' : '?'
-      const res = await fetch(`${base}${sep}_=${Date.now()}`, { cache: 'no-store' })
+      const res = await fetch(`${base}${sep}_=${Date.now()}`, {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache',
+          Pragma: 'no-cache',
+        },
+      })
       const data = (await res.json().catch(() => ({}))) as { total?: number }
       const n = data.total
+
       if (typeof n === 'number' && Number.isFinite(n)) {
-        setParticipationTotal(n)
-        if (typeof window !== 'undefined') {
+        /** 서버가 복제 지연·캐시로 더 낮은 값을 줄 때 sessionStorage(퀴즈 직후)를 덮어쓰지 않음 */
+        const best = optimistic != null ? Math.max(n, optimistic) : n
+        setParticipationTotal(best)
+        if (typeof window !== 'undefined' && (optimistic == null || n >= optimistic)) {
           sessionStorage.removeItem('quizpang_latest_participation')
         }
+      } else if (optimistic != null) {
+        setParticipationTotal(optimistic)
       } else {
         setParticipationTotal(1000)
       }
     } catch {
+      if (typeof window !== 'undefined') {
+        const sync = sessionStorage.getItem('quizpang_latest_participation')
+        if (sync != null) {
+          const v = Number.parseInt(sync, 10)
+          if (Number.isFinite(v)) {
+            setParticipationTotal(v)
+            return
+          }
+        }
+      }
       setParticipationTotal(1000)
     }
   }, [])
@@ -76,7 +100,7 @@ export default function HomePage() {
     void loadParticipation()
   }, [loadParticipation])
 
-  /** 결과/다른 탭에서 돌아올 때 누적 수가 브라우저 캐시로 안 올라가는 문제 방지 */
+  /** 결과/다른 탭·창 포커스 시 갱신 + 주기 폴링(다른 사용자 참여 반영) */
   useEffect(() => {
     const onVisible = () => {
       if (document.visibilityState === 'visible') void loadParticipation()
@@ -84,11 +108,22 @@ export default function HomePage() {
     const onPageShow = (e: PageTransitionEvent) => {
       if (e.persisted) void loadParticipation()
     }
+    const onFocus = () => void loadParticipation()
+
     window.addEventListener('visibilitychange', onVisible)
     window.addEventListener('pageshow', onPageShow)
+    window.addEventListener('focus', onFocus)
+
+    const intervalMs = 20_000
+    const id = window.setInterval(() => {
+      if (document.visibilityState === 'visible') void loadParticipation()
+    }, intervalMs)
+
     return () => {
       window.removeEventListener('visibilitychange', onVisible)
       window.removeEventListener('pageshow', onPageShow)
+      window.removeEventListener('focus', onFocus)
+      window.clearInterval(id)
     }
   }, [loadParticipation])
 
