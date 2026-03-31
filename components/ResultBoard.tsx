@@ -18,6 +18,8 @@ export interface ResultBoardProps {
   category: Category
   nickname: string
   rankings: { nickname: string; score: number }[]
+  /** 누적 참여 수 (participation_counter) */
+  participationCount: number
   onRetry: () => void
   onOtherCategory: () => void
 }
@@ -28,6 +30,7 @@ export function ResultBoard({
   category,
   nickname,
   rankings,
+  participationCount,
   onRetry,
   onOtherCategory,
 }: ResultBoardProps) {
@@ -90,6 +93,13 @@ export function ResultBoard({
           ) : null}
         </div>
         <p className="mt-2 text-sm font-bold text-zinc-700">{isPerfect ? '만점! 멋져요!' : '수고했어요!'}</p>
+        <p className="mt-3 text-sm font-bold text-zinc-600">
+          지금까지{' '}
+          <span className="tabular-nums font-bold text-doodle-purple">
+            {participationCount.toLocaleString('ko-KR')}
+          </span>
+          명 참여중
+        </p>
       </div>
 
       <div className="mt-8">

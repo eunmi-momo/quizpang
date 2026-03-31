@@ -10,6 +10,8 @@ import type { Category } from '@/types/quiz'
 
 const CATEGORIES: Category[] = ['broadcast', 'movie', 'music', 'star']
 
+const DEFAULT_PARTICIPATION = 1000
+
 function isCategory(s: string | null): s is Category {
   return s != null && (CATEGORIES as readonly string[]).includes(s)
 }
@@ -57,6 +59,7 @@ export default function ResultPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [rankings, setRankings] = useState<{ nickname: string; score: number }[]>([])
+  const [participationCount, setParticipationCount] = useState<number>(DEFAULT_PARTICIPATION)
 
   const paramsValid = category != null && nickname.length >= 1 && !Number.isNaN(scoreNum)
 
@@ -116,7 +119,9 @@ export default function ResultPage() {
           await waitUntilScorePostSettled(scorePostDedupeKey)
         }
 
-        const getRes = await fetch(apiUrl(`/api/score?category=${encodeURIComponent(category)}`))
+        const getRes = await fetch(apiUrl(`/api/score?category=${encodeURIComponent(category)}`), {
+          cache: 'no-store',
+        })
         const getData = await getRes.json().catch(() => ({}))
         if (!getRes.ok) {
           throw new Error(typeof getData.error === 'string' ? getData.error : '랭킹을 불러오지 못했어요.')
@@ -134,10 +139,28 @@ export default function ResultPage() {
             })),
           )
         }
+
+        let nextParticipation = DEFAULT_PARTICIPATION
+        try {
+          const partRes = await fetch(apiUrl('/api/participation'), { cache: 'no-store' })
+          const partData = await partRes.json().catch(() => ({}))
+          if (partRes.ok) {
+            const rawCount = (partData as { count?: unknown }).count
+            if (typeof rawCount === 'number' && Number.isFinite(rawCount)) {
+              nextParticipation = Math.round(rawCount)
+            }
+          }
+        } catch {
+          // 참여 수만 실패해도 점수·랭킹은 표시
+        }
+        if (!cancelled) {
+          setParticipationCount(nextParticipation)
+        }
       } catch (e) {
         if (!cancelled) {
           setError(e instanceof Error ? e.message : '오류가 발생했어요.')
           setRankings([])
+          setParticipationCount(DEFAULT_PARTICIPATION)
         }
       } finally {
         if (!cancelled) setLoading(false)
@@ -206,6 +229,7 @@ export default function ResultPage() {
         category={category}
         nickname={nickname}
         rankings={rankings}
+        participationCount={participationCount}
         onRetry={onRetry}
         onOtherCategory={onOtherCategory}
       />
