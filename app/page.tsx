@@ -43,26 +43,40 @@ export default function HomePage() {
     return p
   }, [])
 
-  useEffect(() => {
-    let cancelled = false
-    void (async () => {
-      try {
-        const res = await fetch(apiUrl('/api/stats/participation'))
-        const data = (await res.json().catch(() => ({}))) as { total?: number }
-        const n = data.total
-        if (!cancelled && typeof n === 'number' && Number.isFinite(n)) {
-          setParticipationTotal(n)
-        } else if (!cancelled) {
-          setParticipationTotal(1000)
-        }
-      } catch {
-        if (!cancelled) setParticipationTotal(1000)
+  const loadParticipation = useCallback(async () => {
+    try {
+      const res = await fetch(apiUrl('/api/stats/participation'), { cache: 'no-store' })
+      const data = (await res.json().catch(() => ({}))) as { total?: number }
+      const n = data.total
+      if (typeof n === 'number' && Number.isFinite(n)) {
+        setParticipationTotal(n)
+      } else {
+        setParticipationTotal(1000)
       }
-    })()
-    return () => {
-      cancelled = true
+    } catch {
+      setParticipationTotal(1000)
     }
   }, [])
+
+  useEffect(() => {
+    void loadParticipation()
+  }, [loadParticipation])
+
+  /** 결과/다른 탭에서 돌아올 때 누적 수가 브라우저 캐시로 안 올라가는 문제 방지 */
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') void loadParticipation()
+    }
+    const onPageShow = (e: PageTransitionEvent) => {
+      if (e.persisted) void loadParticipation()
+    }
+    window.addEventListener('visibilitychange', onVisible)
+    window.addEventListener('pageshow', onPageShow)
+    return () => {
+      window.removeEventListener('visibilitychange', onVisible)
+      window.removeEventListener('pageshow', onPageShow)
+    }
+  }, [loadParticipation])
 
   /** 모달이 열리면 해당 카테고리 프리페치(호버와 중복 시 동일 Promise 재사용) */
   useEffect(() => {

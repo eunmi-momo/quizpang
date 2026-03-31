@@ -21,14 +21,35 @@ export async function GET() {
 
     if (error) {
       console.warn('[GET /api/stats/participation]', error.message)
-      return NextResponse.json({ total: DEFAULT_TOTAL })
+      return NextResponse.json(
+        { total: DEFAULT_TOTAL },
+        {
+          headers: {
+            'Cache-Control': 'no-store, no-cache, must-revalidate',
+          },
+        },
+      )
     }
 
     const total = parseCountField(data?.count)
 
-    return NextResponse.json({ total })
+    return NextResponse.json(
+      { total },
+      {
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate',
+        },
+      },
+    )
   } catch (e) {
     console.error('[GET /api/stats/participation]', e)
-    return NextResponse.json({ total: DEFAULT_TOTAL })
+    return NextResponse.json(
+      { total: DEFAULT_TOTAL },
+      {
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate',
+        },
+      },
+    )
   }
 }
