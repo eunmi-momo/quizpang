@@ -11,6 +11,10 @@ INSERT INTO public.participation_counter (id, count)
 VALUES (1, 1000)
 ON CONFLICT (id) DO NOTHING;
 
+-- 행이 없을 때 UPDATE 0행만 하면 NULL 반환되어 앱에서 카운트가 안 올라가므로, 먼저 행을 보장한 뒤 +1
+-- 기존 함수와 반환 타입이 다르면 CREATE OR REPLACE만으로는 교체 불가 → DROP 후 재생성
+DROP FUNCTION IF EXISTS public.increment_participation();
+
 CREATE OR REPLACE FUNCTION public.increment_participation()
 RETURNS bigint
 LANGUAGE plpgsql
@@ -20,14 +24,15 @@ AS $$
 DECLARE
   new_count bigint;
 BEGIN
+  INSERT INTO public.participation_counter (id, count)
+  VALUES (1, 1000)
+  ON CONFLICT (id) DO NOTHING;
+
   UPDATE public.participation_counter
   SET count = count + 1
   WHERE id = 1
   RETURNING count INTO new_count;
+
   RETURN new_count;
 END;
 $$;
-
--- 익명/로그인 사용자가 읽을 필요가 있으면 SELECT 정책 추가 (선택)
--- ALTER TABLE public.participation_counter ENABLE ROW LEVEL SECURITY;
--- CREATE POLICY "Anyone can read counter" ON public.participation_counter FOR SELECT USING (true);

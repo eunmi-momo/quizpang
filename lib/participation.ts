@@ -10,8 +10,16 @@ export function parseCountField(v: unknown): number {
   return 1000
 }
 
+function isUniqueViolation(err: { code?: string; message?: string }): boolean {
+  return (
+    err.code === '23505' ||
+    /duplicate key|unique constraint|violates unique constraint/i.test(String(err.message ?? ''))
+  )
+}
+
 /**
- * increment_participation RPC 실패 시 select + update로 +1 (폴백)
+ * increment_participation RPC 실패 또는 0행 반환 시 사용.
+ * `id=1` 행이 없으면 INSERT(1001)로 첫 반영, 있으면 +1 UPDATE.
  */
 export async function incrementParticipationFallback(supabase: SupabaseClient): Promise<void> {
   const { data: row, error: selErr } = await supabase
@@ -25,7 +33,18 @@ export async function incrementParticipationFallback(supabase: SupabaseClient): 
     return
   }
 
-  const cur = parseCountField(row?.count)
+  if (row == null) {
+    const { error: insErr } = await supabase.from('participation_counter').insert({ id: 1, count: 1001 })
+    if (!insErr) return
+    if (isUniqueViolation(insErr)) {
+      await incrementParticipationFallback(supabase)
+      return
+    }
+    console.error('[participation] insert participation_counter:', insErr.message)
+    return
+  }
+
+  const cur = parseCountField(row.count)
   const { error: upErr } = await supabase
     .from('participation_counter')
     .update({ count: cur + 1 })

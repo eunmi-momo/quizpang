@@ -80,13 +80,19 @@ export async function POST(request: Request) {
     }
     console.log('[POST /api/score] scores insert 성공')
 
-    const { error: rpcError } = await supabase.rpc('increment_participation')
+    const { data: rpcData, error: rpcError } = await supabase.rpc('increment_participation')
     if (rpcError) {
       console.error('increment_participation 실패:', rpcError)
-      console.log('[POST /api/score] RPC 실패 → 폴백(incrementParticipationFallback) 시도')
+      console.log('[POST /api/score] RPC 오류 → 폴백(incrementParticipationFallback) 시도')
+      await incrementParticipationFallback(supabase)
+    } else if (rpcData == null) {
+      /** DB에 id=1 행이 없으면 UPDATE 0행 → PL/pgSQL이 NULL 반환. 에러는 없음 */
+      console.warn(
+        '[POST /api/score] increment_participation이 null 반환(0행 UPDATE 가능) → 폴백 시도',
+      )
       await incrementParticipationFallback(supabase)
     } else {
-      console.log('[POST /api/score] increment_participation RPC 성공')
+      console.log('[POST /api/score] increment_participation RPC 성공', { count: rpcData })
     }
 
     console.log('[POST /api/score] 처리 완료 → 200')
