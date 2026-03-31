@@ -11,14 +11,9 @@ export function parseCountField(v: unknown): number {
 }
 
 /**
- * 점수 저장 직후 누적 참여 +1. RPC 실패 시 select + update로 폴백.
+ * increment_participation RPC 실패 시 select + update로 +1 (폴백)
  */
-export async function incrementParticipationAfterScore(supabase: SupabaseClient): Promise<void> {
-  const { error: rpcError } = await supabase.rpc('increment_participation')
-  if (!rpcError) return
-
-  console.warn('[participation] rpc increment_participation failed:', rpcError.message)
-
+export async function incrementParticipationFallback(supabase: SupabaseClient): Promise<void> {
   const { data: row, error: selErr } = await supabase
     .from('participation_counter')
     .select('count')

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 
-import { incrementParticipationAfterScore } from '@/lib/participation'
+import { incrementParticipationFallback } from '@/lib/participation'
 import { createSupabaseServerClient } from '@/lib/supabase'
 import type { Category } from '@/types/quiz'
 
@@ -32,32 +32,40 @@ function getKstTodayRangeIso(): { start: string; end: string } {
 }
 
 export async function POST(request: Request) {
+  console.log('[POST /api/score] 요청 수신')
   try {
     let body: unknown
     try {
       body = await request.json()
     } catch {
+      console.log('[POST /api/score] JSON 파싱 실패 → 400')
       return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
     }
 
     if (!body || typeof body !== 'object') {
+      console.log('[POST /api/score] body가 객체 아님 → 400')
       return NextResponse.json({ error: 'Body must be an object' }, { status: 400 })
     }
 
     const { nickname, category, score } = body as Record<string, unknown>
 
     if (typeof nickname !== 'string' || nickname.trim().length === 0) {
+      console.log('[POST /api/score] nickname 검증 실패 → 400')
       return NextResponse.json({ error: 'nickname is required (non-empty string)' }, { status: 400 })
     }
     if (typeof category !== 'string' || !isCategory(category)) {
+      console.log('[POST /api/score] category 검증 실패 → 400')
       return NextResponse.json(
         { error: 'category must be broadcast | movie | music | star' },
         { status: 400 },
       )
     }
     if (typeof score !== 'number' || !Number.isFinite(score)) {
+      console.log('[POST /api/score] score 검증 실패 → 400')
       return NextResponse.json({ error: 'score must be a finite number' }, { status: 400 })
     }
+
+    console.log('[POST /api/score] 검증 통과', { nickname: nickname.trim(), category, score })
 
     const supabase = createSupabaseServerClient()
     const { error } = await supabase.from('scores').insert({
@@ -67,15 +75,25 @@ export async function POST(request: Request) {
     })
 
     if (error) {
+      console.error('[POST /api/score] scores insert 실패:', error.message)
       throw new Error(`scores insert failed: ${error.message}`)
     }
+    console.log('[POST /api/score] scores insert 성공')
 
-    await incrementParticipationAfterScore(supabase)
+    const { error: rpcError } = await supabase.rpc('increment_participation')
+    if (rpcError) {
+      console.error('increment_participation 실패:', rpcError)
+      console.log('[POST /api/score] RPC 실패 → 폴백(incrementParticipationFallback) 시도')
+      await incrementParticipationFallback(supabase)
+    } else {
+      console.log('[POST /api/score] increment_participation RPC 성공')
+    }
 
+    console.log('[POST /api/score] 처리 완료 → 200')
     return NextResponse.json({ ok: true })
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'Unknown error'
-    console.error('[POST /api/score]', e)
+    console.error('[POST /api/score] 예외:', e)
     return NextResponse.json({ error: msg }, { status: 500 })
   }
 }
