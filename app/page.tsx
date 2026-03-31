@@ -21,7 +21,27 @@ export default function HomePage() {
   const [modalCategory, setModalCategory] = useState<Category | null>(null)
   const [isPreparing, setIsPreparing] = useState(false)
   const [participationTotal, setParticipationTotal] = useState<number | null>(null)
-  const prefetchReadyRef = useRef<Promise<void> | null>(null)
+  const prefetchByCategoryRef = useRef<Partial<Record<Category, Promise<void>>>>({})
+
+  const ensurePrefetch = useCallback((cat: Category): Promise<void> => {
+    const existing = prefetchByCategoryRef.current[cat]
+    if (existing) return existing
+    const p = (async () => {
+      try {
+        const res = await fetch(apiUrl(`/api/quiz/generate?category=${encodeURIComponent(cat)}`))
+        const data = await res.json().catch(() => ({}))
+        if (!res.ok) return
+        const qs = data.questions
+        if (Array.isArray(qs) && qs.length > 0) {
+          saveQuizPrefetch(cat, qs)
+        }
+      } catch {
+        // 퀴즈 페이지에서 다시 요청
+      }
+    })()
+    prefetchByCategoryRef.current[cat] = p
+    return p
+  }, [])
 
   useEffect(() => {
     let cancelled = false
@@ -44,36 +64,18 @@ export default function HomePage() {
     }
   }, [])
 
-  /** 카테고리 모달이 열리면 해당 퀴즈를 미리 불러와 sessionStorage에 저장 */
+  /** 모달이 열리면 해당 카테고리 프리페치(호버와 중복 시 동일 Promise 재사용) */
   useEffect(() => {
-    if (!modalCategory) {
-      prefetchReadyRef.current = null
-      return
-    }
-    const cat = modalCategory
-    prefetchReadyRef.current = (async () => {
-      try {
-        const res = await fetch(apiUrl(`/api/quiz/generate?category=${encodeURIComponent(cat)}`))
-        const data = await res.json().catch(() => ({}))
-        if (!res.ok) return
-        const qs = data.questions
-        if (Array.isArray(qs) && qs.length > 0) {
-          saveQuizPrefetch(cat, qs)
-        }
-      } catch {
-        // 퀴즈 페이지에서 다시 요청
-      }
-    })()
-  }, [modalCategory])
+    if (!modalCategory) return
+    void ensurePrefetch(modalCategory)
+  }, [modalCategory, ensurePrefetch])
 
   const handleConfirmNickname = useCallback(
     async (nickname: string) => {
       if (!modalCategory) return
       setIsPreparing(true)
       try {
-        if (prefetchReadyRef.current) {
-          await prefetchReadyRef.current
-        }
+        await ensurePrefetch(modalCategory)
         const q = new URLSearchParams({ nickname })
         router.push(`/quiz/${modalCategory}?${q.toString()}`)
         setModalCategory(null)
@@ -81,7 +83,7 @@ export default function HomePage() {
         setIsPreparing(false)
       }
     },
-    [modalCategory, router],
+    [modalCategory, router, ensurePrefetch],
   )
 
   return (
@@ -130,6 +132,7 @@ export default function HomePage() {
               label={c.label}
               emoji={c.emoji}
               onClick={() => setModalCategory(c.category)}
+              onPrefetch={() => void ensurePrefetch(c.category)}
             />
           ))}
         </div>

@@ -2,8 +2,8 @@ import { NextResponse } from 'next/server'
 
 import { createSupabaseServerClient } from '@/lib/supabase'
 import { fetchRssItems } from '@/lib/rss'
-import { generateQuizSet } from '@/lib/openai'
-import type { Category, QuizQuestion, QuizSet } from '@/types/quiz'
+import { generateQuizForCategory } from '@/lib/openai'
+import type { Category, QuizQuestion } from '@/types/quiz'
 
 const CATEGORIES: Category[] = ['broadcast', 'movie', 'music', 'star']
 
@@ -11,7 +11,7 @@ function isCategory(s: string | null): s is Category {
   return s != null && (CATEGORIES as readonly string[]).includes(s)
 }
 
-/** 한국(Asia/Seoul) 기준 오늘 00:00 KST (= UTC 전날 15:00 등, 날짜는 +09:00로 고정) */
+/** 한국(Asia/Seoul) 기준 오늘 00:00 KST */
 function getKstTodayStartDate(): Date {
   const fmt = new Intl.DateTimeFormat('en-CA', {
     timeZone: 'Asia/Seoul',
@@ -33,10 +33,15 @@ function getKstTodayStartIso(): string {
   return getKstTodayStartDate().toISOString()
 }
 
-/** 한국 기준 '내일' 00:00 KST — 캐시 만료 시각 */
 function getNextKstMidnightIso(): string {
   const t = getKstTodayStartDate()
   return new Date(t.getTime() + 24 * 60 * 60 * 1000).toISOString()
+}
+
+type CachedQuizData = Partial<Record<Category, QuizQuestion[]>>
+
+function isFiveQuestions(v: unknown): v is QuizQuestion[] {
+  return Array.isArray(v) && v.length === 5
 }
 
 export async function GET(request: Request) {
@@ -57,7 +62,7 @@ export async function GET(request: Request) {
 
     const { data: cacheRow, error: cacheErr } = await supabase
       .from('quiz_cache')
-      .select('quiz_data')
+      .select('id, quiz_data')
       .gt('expires_at', nowIso)
       .gte('created_at', kstTodayStartIso)
       .order('created_at', { ascending: false })
@@ -68,32 +73,35 @@ export async function GET(request: Request) {
       throw new Error(`quiz_cache read failed: ${cacheErr.message}`)
     }
 
-    let quizSet: QuizSet | null = null
-    if (cacheRow?.quiz_data) {
-      quizSet = cacheRow.quiz_data as QuizSet
-    }
-
-    if (quizSet && Array.isArray(quizSet[category]) && quizSet[category].length === 5) {
-      return NextResponse.json({ questions: quizSet[category] as QuizQuestion[] })
+    const quizData = (cacheRow?.quiz_data ?? null) as CachedQuizData | null
+    const cachedForCategory = quizData?.[category]
+    if (isFiveQuestions(cachedForCategory)) {
+      return NextResponse.json({ questions: cachedForCategory })
     }
 
     const items = await fetchRssItems()
-    const parsedQuiz = await generateQuizSet(items)
-    console.log(JSON.stringify(parsedQuiz, null, 2))
+    const questions = await generateQuizForCategory(category, items)
 
+    const prev: CachedQuizData = { ...(quizData ?? {}) }
+    const merged: CachedQuizData = { ...prev, [category]: questions }
     const expiresAt = getNextKstMidnightIso()
-    const { error: insertErr } = await supabase.from('quiz_cache').insert({
-      quiz_data: parsedQuiz,
-      expires_at: expiresAt,
-    })
 
-    if (insertErr) {
-      throw new Error(`quiz_cache insert failed: ${insertErr.message}`)
-    }
-
-    const questions = parsedQuiz[category]
-    if (!Array.isArray(questions) || questions.length !== 5) {
-      throw new Error(`Generated quiz missing category "${category}"`)
+    if (cacheRow?.id != null) {
+      const { error: updErr } = await supabase
+        .from('quiz_cache')
+        .update({ quiz_data: merged })
+        .eq('id', cacheRow.id)
+      if (updErr) {
+        throw new Error(`quiz_cache update failed: ${updErr.message}`)
+      }
+    } else {
+      const { error: insertErr } = await supabase.from('quiz_cache').insert({
+        quiz_data: merged,
+        expires_at: expiresAt,
+      })
+      if (insertErr) {
+        throw new Error(`quiz_cache insert failed: ${insertErr.message}`)
+      }
     }
 
     return NextResponse.json({ questions })

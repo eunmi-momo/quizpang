@@ -14,15 +14,18 @@ export interface CategoryCardProps {
   label: string
   emoji: string
   onClick: () => void
+  /** 호버 시 퀴즈 API 미리 호출(첫 로딩 체감 단축) */
+  onPrefetch?: () => void
 }
 
-export function CategoryCard({ category, label, emoji, onClick }: CategoryCardProps) {
+export function CategoryCard({ category, label, emoji, onClick, onPrefetch }: CategoryCardProps) {
   const s = categoryStyles[category]
 
   return (
     <button
       type="button"
       onClick={onClick}
+      onPointerEnter={() => onPrefetch?.()}
       className={[
         'group relative flex aspect-square w-full min-w-0 flex-col overflow-hidden rounded-lg border-[3px] border-black bg-white text-zinc-900',
         'shadow-[2px_2px_0_#000]',
