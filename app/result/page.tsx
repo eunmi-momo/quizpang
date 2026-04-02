@@ -17,6 +17,20 @@ function isCategory(s: string | null): s is Category {
   return s != null && (CATEGORIES as readonly string[]).includes(s)
 }
 
+function readSessionParticipation(): number | null {
+  if (typeof window === 'undefined') return null
+  const sync = sessionStorage.getItem('quizpang_latest_participation')
+  if (sync == null) return null
+  const v = Number.parseInt(sync, 10)
+  return Number.isFinite(v) ? v : null
+}
+
+/** GET으로 받은 값·POST 응답·sessionStorage 중 최댓값 (복제 지연으로 GET이 낮게 올 때 보정) */
+function mergeParticipationDisplay(fetched: number, fromPost: number | null): number {
+  const optimistic = readSessionParticipation()
+  return Math.max(fetched, fromPost ?? 0, optimistic ?? 0)
+}
+
 /** Strict Mode에서 첫 번째 POST가 끝날 때까지 대기 (두 번째 effect가 빨리 GET 하는 것 방지) */
 async function waitUntilScorePostSettled(key: string) {
   for (let i = 0; i < 200; i++) {
@@ -82,6 +96,7 @@ export default function ResultPage() {
 
     const run = async () => {
       try {
+        let participationFromPost: number | null = null
         let shouldPost = true
         if (typeof window !== 'undefined' && scorePostDedupeKey) {
           const v = sessionStorage.getItem(scorePostDedupeKey)
@@ -116,7 +131,9 @@ export default function ResultPage() {
               typeof pc === 'number' &&
               Number.isFinite(pc)
             ) {
-              sessionStorage.setItem('quizpang_latest_participation', String(Math.round(pc)))
+              const rounded = Math.round(pc)
+              sessionStorage.setItem('quizpang_latest_participation', String(rounded))
+              participationFromPost = rounded
             }
             if (typeof window !== 'undefined' && scorePostDedupeKey) {
               sessionStorage.setItem(scorePostDedupeKey, '1')
@@ -154,7 +171,15 @@ export default function ResultPage() {
 
         let nextParticipation = DEFAULT_PARTICIPATION
         try {
-          const partRes = await fetch(apiUrl('/api/participation'), { cache: 'no-store' })
+          const partBase = apiUrl('/api/participation')
+          const partSep = partBase.includes('?') ? '&' : '?'
+          const partRes = await fetch(`${partBase}${partSep}_=${Date.now()}`, {
+            cache: 'no-store',
+            headers: {
+              'Cache-Control': 'no-cache',
+              Pragma: 'no-cache',
+            },
+          })
           const partData = await partRes.json().catch(() => ({}))
           if (partRes.ok) {
             const rawCount = (partData as { count?: unknown }).count
@@ -166,7 +191,7 @@ export default function ResultPage() {
           // 참여 수만 실패해도 점수·랭킹은 표시
         }
         if (!cancelled) {
-          setParticipationCount(nextParticipation)
+          setParticipationCount(mergeParticipationDisplay(nextParticipation, participationFromPost))
         }
       } catch (e) {
         if (!cancelled) {
