@@ -7,6 +7,11 @@ import { useRouter } from 'next/navigation'
 import { CategoryCard } from '@/components/CategoryCard'
 import { NicknameModal } from '@/components/NicknameModal'
 import { apiUrl } from '@/lib/base-path'
+import {
+  bumpParticipationLocalMax,
+  mergeParticipationDisplayValue,
+  tryClearSessionParticipationAfterFetch,
+} from '@/lib/participation-client'
 import { saveQuizPrefetch } from '@/lib/quiz-prefetch'
 import type { Category } from '@/types/quiz'
 
@@ -90,15 +95,10 @@ export default function HomePage() {
 
   const loadParticipation = useCallback(async () => {
     try {
-      let optimistic: number | null = null
       if (typeof window !== 'undefined') {
-        const sync = sessionStorage.getItem('quizpang_latest_participation')
-        if (sync != null) {
-          const v = Number.parseInt(sync, 10)
-          if (Number.isFinite(v)) {
-            optimistic = v
-            setParticipationTotal(v)
-          }
+        const pre = mergeParticipationDisplayValue(0, {})
+        if (pre > 0) {
+          setParticipationTotal(pre)
         }
       }
 
@@ -115,27 +115,21 @@ export default function HomePage() {
       const n = data.total
 
       if (typeof n === 'number' && Number.isFinite(n)) {
-        /** 서버가 복제 지연·캐시로 더 낮은 값을 줄 때 sessionStorage(퀴즈 직후)를 덮어쓰지 않음 */
-        const best = optimistic != null ? Math.max(n, optimistic) : n
+        const best = mergeParticipationDisplayValue(n, {})
         setParticipationTotal(best)
-        if (typeof window !== 'undefined' && (optimistic == null || n >= optimistic)) {
-          sessionStorage.removeItem('quizpang_latest_participation')
-        }
-      } else if (optimistic != null) {
-        setParticipationTotal(optimistic)
+        bumpParticipationLocalMax(best)
+        tryClearSessionParticipationAfterFetch(n)
       } else {
-        setParticipationTotal(1000)
+        const fallback = mergeParticipationDisplayValue(1000, {})
+        setParticipationTotal(fallback)
+        bumpParticipationLocalMax(fallback)
       }
     } catch {
       if (typeof window !== 'undefined') {
-        const sync = sessionStorage.getItem('quizpang_latest_participation')
-        if (sync != null) {
-          const v = Number.parseInt(sync, 10)
-          if (Number.isFinite(v)) {
-            setParticipationTotal(v)
-            return
-          }
-        }
+        const fallback = mergeParticipationDisplayValue(1000, {})
+        setParticipationTotal(fallback)
+        bumpParticipationLocalMax(fallback)
+        return
       }
       setParticipationTotal(1000)
     }

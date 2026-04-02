@@ -7,6 +7,11 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { ResultBoard } from '@/components/ResultBoard'
 import { SiteHeaderBar } from '@/components/SiteHeaderBar'
 import { apiUrl } from '@/lib/base-path'
+import {
+  bumpParticipationLocalMax,
+  mergeParticipationDisplayValue,
+  SESSION_PARTICIPATION_KEY,
+} from '@/lib/participation-client'
 import type { Category } from '@/types/quiz'
 
 const CATEGORIES: Category[] = ['broadcast', 'movie', 'music', 'star']
@@ -15,20 +20,6 @@ const DEFAULT_PARTICIPATION = 1000
 
 function isCategory(s: string | null): s is Category {
   return s != null && (CATEGORIES as readonly string[]).includes(s)
-}
-
-function readSessionParticipation(): number | null {
-  if (typeof window === 'undefined') return null
-  const sync = sessionStorage.getItem('quizpang_latest_participation')
-  if (sync == null) return null
-  const v = Number.parseInt(sync, 10)
-  return Number.isFinite(v) ? v : null
-}
-
-/** GET으로 받은 값·POST 응답·sessionStorage 중 최댓값 (복제 지연으로 GET이 낮게 올 때 보정) */
-function mergeParticipationDisplay(fetched: number, fromPost: number | null): number {
-  const optimistic = readSessionParticipation()
-  return Math.max(fetched, fromPost ?? 0, optimistic ?? 0)
 }
 
 /** Strict Mode에서 첫 번째 POST가 끝날 때까지 대기 (두 번째 effect가 빨리 GET 하는 것 방지) */
@@ -132,7 +123,7 @@ export default function ResultPage() {
               Number.isFinite(pc)
             ) {
               const rounded = Math.round(pc)
-              sessionStorage.setItem('quizpang_latest_participation', String(rounded))
+              sessionStorage.setItem(SESSION_PARTICIPATION_KEY, String(rounded))
               participationFromPost = rounded
             }
             if (typeof window !== 'undefined' && scorePostDedupeKey) {
@@ -191,7 +182,11 @@ export default function ResultPage() {
           // 참여 수만 실패해도 점수·랭킹은 표시
         }
         if (!cancelled) {
-          setParticipationCount(mergeParticipationDisplay(nextParticipation, participationFromPost))
+          const merged = mergeParticipationDisplayValue(nextParticipation, {
+            fromPost: participationFromPost,
+          })
+          setParticipationCount(merged)
+          bumpParticipationLocalMax(merged)
         }
       } catch (e) {
         if (!cancelled) {
