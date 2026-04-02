@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 import { CategoryCard } from '@/components/CategoryCard'
 import { NicknameModal } from '@/components/NicknameModal'
 import { apiUrl } from '@/lib/base-path'
+import { fetchParticipationTotalWithRetry } from '@/lib/participation-api'
 import {
   bumpParticipationLocalMax,
   mergeParticipationDisplayValue,
@@ -102,17 +103,7 @@ export default function HomePage() {
         }
       }
 
-      const base = apiUrl('/api/stats/participation')
-      const sep = base.includes('?') ? '&' : '?'
-      const res = await fetch(`${base}${sep}_=${Date.now()}`, {
-        cache: 'no-store',
-        headers: {
-          'Cache-Control': 'no-cache',
-          Pragma: 'no-cache',
-        },
-      })
-      const data = (await res.json().catch(() => ({}))) as { total?: number }
-      const n = data.total
+      const n = await fetchParticipationTotalWithRetry()
 
       if (typeof n === 'number' && Number.isFinite(n)) {
         const best = mergeParticipationDisplayValue(n, {})

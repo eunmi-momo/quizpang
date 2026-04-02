@@ -15,21 +15,23 @@ export async function GET() {
     const supabase = createSupabaseServerClient()
     const total = await getParticipationCountFromDb(supabase)
 
-    return NextResponse.json(
-      { total },
-      {
-        headers: {
-          'Cache-Control': 'no-store, no-cache, must-revalidate',
-        },
-      },
-    )
+    const noStore = {
+      'Cache-Control': 'private, no-store, no-cache, must-revalidate, max-age=0',
+      Pragma: 'no-cache',
+      /** nginx / Cloud CDN / LB 앞단 캐시 억제(설정에 따라 무시될 수 있음) */
+      'CDN-Cache-Control': 'no-store',
+    } as const
+
+    return NextResponse.json({ total }, { headers: noStore })
   } catch (e) {
     console.error('[GET /api/stats/participation]', e)
     return NextResponse.json(
       { total: DEFAULT_TOTAL },
       {
         headers: {
-          'Cache-Control': 'no-store, no-cache, must-revalidate',
+          'Cache-Control': 'private, no-store, no-cache, must-revalidate, max-age=0',
+          Pragma: 'no-cache',
+          'CDN-Cache-Control': 'no-store',
         },
       },
     )

@@ -13,21 +13,22 @@ export async function GET() {
     const supabase = createSupabaseServerClient()
     const count = await getParticipationCountFromDb(supabase)
 
-    return NextResponse.json(
-      { count },
-      {
-        headers: {
-          'Cache-Control': 'no-store, no-cache, must-revalidate',
-        },
-      },
-    )
+    const noStore = {
+      'Cache-Control': 'private, no-store, no-cache, must-revalidate, max-age=0',
+      Pragma: 'no-cache',
+      'CDN-Cache-Control': 'no-store',
+    } as const
+
+    return NextResponse.json({ count }, { headers: noStore })
   } catch (e) {
     console.error('[GET /api/participation]', e)
     return NextResponse.json(
       { count: DEFAULT_COUNT },
       {
         headers: {
-          'Cache-Control': 'no-store, no-cache, must-revalidate',
+          'Cache-Control': 'private, no-store, no-cache, must-revalidate, max-age=0',
+          Pragma: 'no-cache',
+          'CDN-Cache-Control': 'no-store',
         },
       },
     )

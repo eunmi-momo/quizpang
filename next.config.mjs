@@ -39,6 +39,21 @@ const basePath =
 const nextConfig = {
   output: "standalone",
   ...(basePath ? { basePath, assetPrefix: basePath } : {}),
+  /** API는 GCP nginx/브라우저 캐시에 걸리지 않도록 (basePath 사용 시에도 source는 /api 기준) */
+  async headers() {
+    return [
+      {
+        source: "/api/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "private, no-store, no-cache, must-revalidate, max-age=0",
+          },
+          { key: "Pragma", value: "no-cache" },
+        ],
+      },
+    ]
+  },
   /** basePath 사용 시 localhost:3000/ → /quizpang/ (middleware는 basePath 기준 경로만 매칭되어 여기서 처리) */
   async redirects() {
     if (!basePath) return []

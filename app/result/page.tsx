@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { ResultBoard } from '@/components/ResultBoard'
 import { SiteHeaderBar } from '@/components/SiteHeaderBar'
 import { apiUrl } from '@/lib/base-path'
+import { fetchParticipationTotalWithRetry } from '@/lib/participation-api'
 import {
   bumpParticipationLocalMax,
   mergeParticipationDisplayValue,
@@ -162,21 +163,9 @@ export default function ResultPage() {
 
         let nextParticipation = DEFAULT_PARTICIPATION
         try {
-          const partBase = apiUrl('/api/participation')
-          const partSep = partBase.includes('?') ? '&' : '?'
-          const partRes = await fetch(`${partBase}${partSep}_=${Date.now()}`, {
-            cache: 'no-store',
-            headers: {
-              'Cache-Control': 'no-cache',
-              Pragma: 'no-cache',
-            },
-          })
-          const partData = await partRes.json().catch(() => ({}))
-          if (partRes.ok) {
-            const rawCount = (partData as { count?: unknown }).count
-            if (typeof rawCount === 'number' && Number.isFinite(rawCount)) {
-              nextParticipation = Math.round(rawCount)
-            }
+          const total = await fetchParticipationTotalWithRetry()
+          if (typeof total === 'number' && Number.isFinite(total)) {
+            nextParticipation = total
           }
         } catch {
           // 참여 수만 실패해도 점수·랭킹은 표시
